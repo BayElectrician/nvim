@@ -205,6 +205,9 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
 
+-- Running the current Python file in a new terminal window
+vim.keymap.set('n', '<leader>p', ':term python "%:p" <return> i', { desc = 'Run Current [P]ython files' })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -250,14 +253,76 @@ require('lazy').setup({
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
   'nvim-neo-tree/neo-tree.nvim',
   'MunifTanjim/nui.nvim',
+  'ThePrimeagen/vim-be-good',
+  'eachasnovski/mini.nvim',
+  
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
   -- keys can be used to configure plugin behavior/loading/etc.
   --
   -- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
   --
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.nvim' }, -- if you use the mini.nvim suite
+    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {
+    },
+  },
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    opts = {
+      menu = {
+        width = vim.api.nvim_win_get_width(0) - 4,
+      },
+      settings = {
+        save_on_toggle = true,
+      },
+    },
+    keys = function()
+      local keys = {
+        {
+          "<leader>H",
+          function()
+            require("harpoon"):list():add()
+          end,
+          desc = "Harpoon File",
+        },
+        {
+          "<leader>h",
+          function()
+            local harpoon = require("harpoon")
+            harpoon.ui:toggle_quick_menu(harpoon:list())
+          end,
+          desc = "Harpoon Quick Menu",
+        },
+      }
 
-  -- Alternatively, use `config = function() ... end` for full control over the configuration.
+      for i = 1, 5 do
+        table.insert(keys, {
+          "<leader>" .. i,
+          function()
+            require("harpoon"):list():select(i)
+          end,
+          desc = "Harpoon to File " .. i,
+        })
+      end
+      return keys
+    end,
+  },
+
+  -- Not all LSP servers add brackets when completing a function.
+  -- To better deal with this, LazyVim adds a custom option to cmp,
+  -- that you can configure. For example:
+  --
+  opts = {
+    auto_brackets = { "python" }
+  },
+  
+    -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
   --    {
   --        'lewis6991/gitsigns.nvim',
@@ -430,14 +495,14 @@ require('lazy').setup({
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
+      vim.keymap.set('n', '<leader><leader>', builtin.find_files, { desc = '[ ] Search [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-      vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>sb', builtin.buffers, { desc = 'Search existing [B]uffers' })
       vim.keymap.set('n', '<leader>n', ':Neotree toggle float<CR>')
 
       -- Slightly advanced example of overriding default behavior and theme
@@ -615,7 +680,7 @@ require('lazy').setup({
                 vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
               end,
             })
-          end
+         end
 
           -- The following code creates a keymap to toggle inlay hints in your
           -- code, if the language server you are using supports them
@@ -676,7 +741,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pylsp = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -853,7 +918,10 @@ require('lazy').setup({
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = { auto_show = true, auto_show_delay_ms = 100 },
+        accept = {
+          auto_brackets = { enabled = true },
+        }
       },
 
       sources = {

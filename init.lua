@@ -19,12 +19,13 @@
 ========                                                     ========
 =====================================================================
 =====================================================================
+--]]
 
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -198,13 +199,14 @@ require("lazy").setup({
 	--
 	-- Use `opts = {}` to automatically pass options to a plugin's `setup()` function, forcing the plugin to be loaded.
 	--
+
 	{
 		"lervag/vimtex",
 		lazy = false, -- we don't want to lazy load VimTeX
 		-- tag = "v2.15", -- uncomment to pin to a specific release
 		init = function()
 			-- VimTeX configuration goes here, e.g.
-			vim.g.vimtex_view_method = "zathura"
+			vim.g.vimtex_view_method = "general"
 		end,
 	},
 
@@ -902,7 +904,7 @@ require("lazy").setup({
 			signature = { enabled = true },
 		},
 	},
-
+	-- Colour Schemes
 	{ -- You can easily change to a different colorscheme.
 		-- Change the name of the colorscheme plugin below, and then
 		-- change the command in the config to whatever the name of that colorscheme is.
@@ -921,8 +923,20 @@ require("lazy").setup({
 			-- Load the colorscheme here.
 			-- Like many other themes, this one has different styles, and you could load
 			-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-			vim.cmd.colorscheme("tokyonight-night")
+			-- vim.cmd.colorscheme("gruvbox")
 		end,
+	},
+	{
+		"rose-pine/neovim",
+		name = "rose-pine",
+		config = function()
+			--vim.cmd("colorscheme rose-pine")
+		end,
+	},
+	{
+		"ellisonleao/gruvbox.nvim",
+		name = "gruvbox",
+		config = true,
 	},
 
 	-- Highlight todo, notes, etc in comments
@@ -983,6 +997,7 @@ require("lazy").setup({
 				"html",
 				"lua",
 				"luadoc",
+				"latex",
 				"markdown",
 				"markdown_inline",
 				"query",
@@ -1058,3 +1073,5 @@ require("lazy").setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+vim.o.background = "dark" -- or "light" for light mode
+vim.cmd([[colorscheme gruvbox]])
